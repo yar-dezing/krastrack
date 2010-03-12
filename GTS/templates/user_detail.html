@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Пользователь - 
+    {% if user %} 
+        {{user}}
+    {% else %}
+        Новый
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Информация</p>
+    
+    {% if error_message %}
+        <p class="errornote">{{ error_message }}</p>
+        Please, correct this errors and try again.
+        <p>
+    {% endif %}
+    
+    {% if user %}
+        <form method="POST" action="/users/{{ user.user.id }}/">
+    {% else %}
+        <form method="POST" action="/users/add/">
+    {% endif %}
+        <table>
+            {{ user_form }}
+            <tr>
+                <td colspan="2" align="right">
+                    <input class="submit" type="submit" value="Сохранить" />
+                </td>
+            <tr>
+        </table>
+    </form>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Пользователи
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Пользователи</p>
+    
+    <table>
+        <tr>
+            <th>
+               ID пользователя
+            </th>
+            <th>
+                Имя
+            </th>
+            <th>
+                e-mail
+            </th>
+            <th>
+                Является администратором
+            </th>
+            <th>
+                Активирован
+            </th>
+        </tr>
+    
+    {% for user in users %}
+        <tr>
+            <td>
+                {{ user.user }}
+            </td>
+            <td>
+                {{ user.user.first_name }} {{ user.user.last_name }}
+            </td>
+            <td>
+                {{ user.user.email }}
+            </td>
+            <td>
+                {{ user.user.is_superuser }}
+            </td>
+            <td>
+                {{ user.user.is_active }}
+            </td>
+        </tr>
+    {% endfor %}
+    <table>
+    
+    <p>
+    
+    <a href="/admin/auth/user/">Редактировать</a>
+    
+{% endblock %}

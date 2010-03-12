@@ -1,0 +1,62 @@
+        {% load table_row_highlight %}
+        <hr>
+        <table bgcolor='#e0efe1'> 
+            <tr>
+                <th>
+                    &nbsp;
+                </th>
+                <th class="report">
+                    Широта
+                </th>
+                <th class="report">
+                    Долгота
+                </th>
+                <th class="report">
+                    Поездка
+                </th>
+                <th class="report">
+                    Время в пути
+                </th>
+                <th class="report">
+                    Стоянка
+                </th>
+                <th class="report">
+                    Время стоянки
+                </th>
+            </tr>
+    	{% if events %}
+            {% for event in events %}
+                <tr class="{% odd_even_row forloop.counter 'odd_row' 'even_row' %}">
+                    <td>
+                    &nbsp;
+                    </td>
+                    <td class="numeric">
+                        <a href="javascript:ShowPoint({{event.latitude}}, {{event.longitude}})">
+                        {{ event.lat }}
+                        </a>
+                    </td>
+                    <td class="numeric">
+                    	<a href="javascript:ShowPoint({{event.latitude}}, {{event.longitude}})">
+                        {{ event.lon }}
+                        </a>
+                    </td>
+                    <td class="date">
+                        {{ event.driving_dates }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.driving_time }}
+                    </td>
+                    <td class="date">
+                    	{{ event.idle_dates }}
+                    </td>
+                    <td class="numeric">
+                    	{% if event.is_parking %}
+                    	<img src="/appmedia/red.png">
+                    	{% endif %}
+                        {{ event.idle_time }}
+                    </td>
+                </tr>
+            {% endfor %}
+    	{% endif %}    
+        <table>
+    

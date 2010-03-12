@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Device - 
+    {% if user %} 
+        {{user}}
+    {% else %}
+        New device
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+
+<script type='text/javascript' src='/appmedia/jquery.js'></script>
+
+<script type="text/javascript">
+	{% if device %}
+
+//-----------------------------------------------------------------------------
+// Check - if device exists, then disable edit of Device ID    
+function CheckId() {
+	var device_id = document.getElementById("id_id");
+	if (device_id.value != "") {
+		device_id.readOnly = true;
+	}
+}
+	
+	{% else %}
+	
+var previous_device = '';
+var in_ajax;
+
+//-----------------------------------------------------------------------------
+// Asynchronous save created region
+function Device_name_check() {
+	var device = $("#id_id").val();
+	if ((device != '') && (in_ajax != 1) && (previous_device != device)) {
+		in_ajax = 1;
+		$.post('/device_name_check/', {"device": device}, function(data){ $("#wait").html(data); in_ajax = 0;});
+    }
+    previous_device = device;
+}
+
+$(function() {
+        setInterval("Device_name_check()", 1000);
+    });
+    
+	{% endif %}
+
+</script>    
+{% endblock %}
+
+{% block body %}
+	{% if device %}
+		<body onload="CheckId()">
+	{% else %}
+        <body>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Детали устройства</p>
+    <div id="wait">
+    	
+	</div>
+    {% if error_message %}
+        <p class="errornote">{{ error_message }}</p>
+        Пожалуйста исправьте ошибки и попробуйте вновь.
+        <p>
+    {% endif %}
+    
+    <table>
+    {% if device %}
+        <form method="POST" action="/devices/{{ device.id }}/">
+    {% else %}
+        <form method="POST" action="/devices/add/">
+    {% endif %}
+        
+            {{ device_form }}
+            <tr>
+                <td colspan="2">
+                    <input class="submit" type="submit" value="Save" />
+                </td>
+            <tr>
+    	</form>
+    </table>
+{% endblock %}
