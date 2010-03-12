@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p class="headernote">Добро пожаловать</p>
+    
+    <img src="/appmedia/map.jpg" alt="some image">
+    
+    {% if events %}
+
+        <p class="headernote">{{ sub_title }}</p>
+        
+        <table> 
+            <tr>
+                <th>
+                    Дата/время
+                </th>
+                <th>
+                    Устройство
+                </th>
+                <th>
+                    Статус
+                </th>
+                <th>
+                    Широта
+                </th>
+                <th>
+                    Долгота
+                </th>
+                <th>
+                    Скорость, км/ч
+                </th>
+                <th>
+                    Высота
+                </th>
+            </tr>
+            {% for event in events %}
+                <tr>
+                    <td>
+                        {{ event.event_date }}
+                    </td>
+                    <td>
+                        {{ event.device }}
+                    </td>
+                    <td>
+                        {{ event.status }}
+                    </td>
+                    <td>
+                        {{ event.latitude|floatformat:"5" }}
+                    </td>
+                    <td>
+                        {{ event.longitude|floatformat:"5" }}
+                    </td>
+                    <td>
+                        {{ event.speed_kph|floatformat:"2" }}
+                    </td>
+                    <td>
+                        {{ event.altitude|floatformat:"2" }}
+                    </td>
+                </tr>
+            {% endfor %}
+        <table>
+    {% endif %}
+        
+{% endblock %}

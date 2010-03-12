@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Accounts
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Accounts</p>
+    
+    {% for account in accounts %}
+        <h2>
+            <a href="/gts_accounts/{{ account.id }}/"> 
+                {{ account.description }}
+            </a>
+        </h2>
+    {% endfor %}
+    <a class="headernote" href="/gts_accounts/add/">Add new account</a>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+	<script type='text/javascript' src='/appmedia/jquery.js'></script>
+	
+<!-- 
+	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA87DEJQM9RENpLrRvYqoccBTmMPmcopN6d7ZOl5ZZfF0Lkb591BRcdlo-Xd6yXTyMCCRek6dOtxm-MQ" 
+    		type="text/javascript">
+    </script>
+ -->
+     
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAafdStmOydL9y1mAQik9LfxTpH3CbXHjuCVmaTc5MkkU4wO1RRhT_SiuX2-ewLx4B2VuycBEvThLmfQ" 
+		type="text/javascript">
+	</script>
+	
+	<script type="text/javascript">
+var baseIcon = new GIcon();
+	baseIcon.iconSize=new GSize(12,20);
+	baseIcon.iconAnchor=new GPoint(6,10);
+	baseIcon.infoWindowAnchor=new GPoint(5,1);
+
+var markers = [];
+var geoXml = new GGeoXml("http://kraskarta.ru/cgi-bin/krsk-city.pl");
+var geoXmlbus = new GGeoXml("http://dig.kraskarta.ru/customvis/krskbus2.kmz");
+
+	{{ icons_script_text }}
+
+	function load() {
+      if (GBrowserIsCompatible()) {
+		var i = 1;
+        var map = new GMap2(document.getElementById("map"));
+        
+		map.addControl(new GMapTypeControl());
+        map.addControl(new GSmallMapControl());
+
+	    GEvent.addListener(map, "zoomend", function() {
+		var zoomzoom = map.getZoom();
+		if (zoomzoom > 14) {
+		 map.addOverlay(geoXmlbus);
+		} else {
+		map.removeOverlay(geoXmlbus);
+		}
+	    });
+
+
+	GEvent.addListener(map, "dragend", function() {
+		var bounds = map.getBounds();
+		var southWest = bounds.getSouthWest();
+		var northEast = bounds.getNorthEast();
+		var zoomzoom = map.getZoom();
+		var geourl = "http://kraskarta.ru/cgi-bin/krsk-city.pl?sw="+southWest.toUrlValue()+"&ne="+northEast.toUrlValue()+"&zm="+zoomzoom;
+	        map.removeOverlay(geoXml);
+	        geoXml = new GGeoXml(geourl);
+	        map.addOverlay(geoXml);
+	    });
+		{% if first_point %}
+		map.setCenter({{ first_point }}, 11);
+		{% else %}
+		map.setCenter(new GLatLng(0.0, 0.0), 1);
+		{% endif %}
+
+		{% if google_points %}
+			{% for point in google_points %}
+		markers[i] = createMarker({{ point.html }}, {{ point.info }}, {{ point.icon }});
+		map.addOverlay(markers[i]);
+		i+=1;
+			{% endfor %}
+		{% endif %}
+		
+      }
+    }
+	
+	function createMarker(point, info, type) {
+      var marker = new GMarker(point, customIcons[type]);
+      var html = info;
+      GEvent.addListener(marker, 'click', function() {
+        marker.openInfoWindowHtml(html);
+      });
+      return marker;
+    }
+    
+    function ReloadPage() {
+    	location.reload();
+    }
+    
+    $(function() {
+        setInterval("ReloadPage()", 120000);
+    });
+    
+    </script>
+    
+{% endblock %}
+
+{% block body %}
+<body onload="load()" onunload="GUnload()">
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Добро пожаловать</p>
+    
+   	<div id="map" style="width: 600px; height: 450px">
+		Последнее месторасположение ТС
+	</div>
+
+    {% if events %}
+
+        <p class="headernote">{{ sub_title }}</p>
+        
+        <table> 
+            <tr>
+            	<th class="report">
+                    Устройство
+                </th>
+                <th class="report">
+                    Дата/Время
+                </th>
+                <th class="report">
+                    Широта
+                </th>
+                <th class="report">
+                    Долгота
+                </th>
+                <th class="report">
+                    Скорость
+                </th>
+                <th class="report">
+                    Выстота
+                </th>
+            </tr>
+            {% for event in events %}
+                <tr>
+                	<td>
+                        <a href="javascript:GEvent.trigger(markers[{{forloop.counter}}],'click')">
+                        	<img src="{{ event.icon }}">
+                        	{{ event.device }}
+                        </a>
+                    </td>
+                    <td class="date">
+                        {{ event.event_date }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.lat }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.lon }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.speed_kph|floatformat:"2" }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.altitude|floatformat:"2" }}
+                    </td>
+                </tr>
+            {% endfor %}
+        <table>
+    {% endif %}
+        
+{% endblock %}

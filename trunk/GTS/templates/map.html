@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+	
+{% block extrahead %}
+<script type='text/javascript' src='/appmedia/jquery.js'></script>
+
+<!-- 
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA87DEJQM9RENpLrRvYqoccBTmMPmcopN6d7ZOl5ZZfF0Lkb591BRcdlo-Xd6yXTyMCCRek6dOtxm-MQ" 
+		type="text/javascript">
+</script>
+--> 
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAafdStmOydL9y1mAQik9LfxTpH3CbXHjuCVmaTc5MkkU4wO1RRhT_SiuX2-ewLx4B2VuycBEvThLmfQ" 
+		type="text/javascript">
+</script>
+<script type="text/javascript">
+
+var previous_interval_begin = '';
+var previous_interval_end = '';
+var previous_device = '';
+var current_device = '';
+var geoXmlbus = new GGeoXml("http://dig.kraskarta.ru/customvis/krskbus2.kmz");
+
+
+//-----------------------------------------------------------------------------
+// Add city streets overlay on Map
+function mapDrawStreets() {
+	
+	//if (map.getCurrentMapType() == G_NORMAL_MAP) {
+	//	return;
+	//}
+	
+	var bounds = map.getBounds();
+	var southWest = bounds.getSouthWest();
+	var northEast = bounds.getNorthEast();
+	var zoomzoom = map.getZoom();
+	//var geourl = "http://kraskarta.ru/cgi-bin/krsk-city.pl?sw="+southWest.toUrlValue()+"&ne="+northEast.toUrlValue()+"&zm="+zoomzoom;
+	//зум регулирует кол-во даннх, если нужно что-бы карта грузилась быстрее - уменьште зум
+	var geourl = "http://kraskarta.ru/cgi-bin/krsk-city.pl?sw="+"55.846024,92.581787"+"&ne="+"56.191424,93.268433"+"&zm=13";
+	
+	//map.removeOverlay(geoXml);
+	
+	//Загружаем данные об улицах для всего города
+	geoXml = new GGeoXml(geourl);
+	//, но не выводим их на карту
+	//if (map.getCurrentMapType() != G_NORMAL_MAP) {
+	//	map.addOverlay(geoXml);
+	//}
+}
+
+//-----------------------------------------------------------------------------
+//
+
+function mapTypeChanged() {
+	if (map.getCurrentMapType() != G_HYBRID_MAP) {
+		map.removeOverlay(geoXml);
+	}
+	else {
+		map.addOverlay(geoXml);
+	}
+}
+
+//-----------------------------------------------------------------------------
+//Initialize Google map and load markers from "google_points"    
+function LoadMap() {
+    if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"), {draggableCursor:"default"});
+        
+        map.addControl(new GMapTypeControl());
+        map.addControl(new GSmallMapControl());
+		
+		map.setCenter(new GLatLng(0.0, 0.0), 1);
+		
+		map.enableContinuousZoom();
+		GEvent.addListener(map, "click", mapClick);
+	
+	    GEvent.addListener(map, "zoomend", function() {
+		var zoomzoom = map.getZoom();
+		if (zoomzoom > 14) {
+		 map.addOverlay(geoXmlbus);
+		} else {
+		map.removeOverlay(geoXmlbus);
+		}
+	    });
+
+		//-----------------------------------------------
+		GEvent.addListener(map, "maptypechanged", mapTypeChanged);
+	    
+	    //Если надо рисовать улицы по драг-енду, поменяйте строки
+	    //GEvent.addListener(map, "dragend", mapDrawStreets);
+		mapDrawStreets();
+	    //-----------------------------------------------
+	    
+		//GEvent.addListener(map, "dblclick", mapClick);
+		
+		//mgr = MarkerManager(map, { borderPadding: 50, maxZoom: 15, trackMarkers: true });
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Asynchronous save created region
+function SavePoints() {
+	var xml_data = showPoints();
+	var device = $("#id_device").val();
+	if (in_ajax != 1) {
+		in_ajax = 1;
+		$.post('/region_save_ajax/', {"device": device, "xml_data": xml_data}, function(data){ alert(data); in_ajax = 0;});
+    }
+}
+
+//-----------------------------------------------------------------------------
+//
+function DeletePoints() {
+	resetRoute();
+	
+	if (loaded_region != null) {
+		map.removeOverlay(loaded_region);
+		loaded_region == null;
+	}
+	
+	var device = $("#id_device").val();
+	if (in_ajax != 1) {
+		in_ajax = 1;
+		$.post('/region_delete_ajax/', {"device": device}, function(data){ alert(data); in_ajax = 0;});
+    }
+}
+
+//-----------------------------------------------------------------------------
+//
+function Map_AJAX() {
+    var interval_begin = $("#id_interval_begin").val();
+    var interval_end = $("#id_interval_end").val();
+    //var device = $("#id_device").val();
+    var device = current_device;
+    
+	if ((interval_begin.length < 8) || (interval_end.length < 8)) {
+		return; 
+		}
+	
+	if ((interval_begin.charAt(interval_begin.length-1) == "-") || (interval_end.charAt(interval_end.length-1) == "-")) {
+		return;
+	}
+	
+	if (((interval_begin != '')  && (interval_end != '') && (device != '') && (in_ajax != 1)) && ((previous_interval_begin != interval_begin) || (previous_interval_end != interval_end) || (previous_device != device))) 
+            {
+                in_ajax = 1;
+                $("#wait").html("<img src='/appmedia/busy.gif' />");
+                $.post('/region_load_ajax/', {"device": device}, funcLoadRegion);
+                in_ajax = 1;
+                $.post('/map_ajax/', {"interval_begin": interval_begin, "interval_end": interval_end, "device": device}, funcLoadXML);
+        	}
+            
+        previous_interval_begin = interval_begin;
+        previous_interval_end = interval_end;
+        previous_device = device;
+    }
+    $(function() {
+        setInterval("Map_AJAX()", 4000);
+        
+        $("#id_device").bind("change",  function(e){
+        	current_device = $("#id_device").val(); 
+        	});
+    });
+
+</script>
+
+<script src="/appmedia/maproutines.js" type="text/javascript">
+</script>
+
+{% endblock %}
+
+{% block body %}
+<body onload="LoadMap()" onunload="GUnload()">
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Карта</p>
+    
+    <table>
+    	<tr>
+    		<td width="500">
+    			<div id="map" style="width: 500px; height: 450px; align:center; vertical-align:center;">
+    				&nbsp;
+    			</div>
+    			<p>
+    			
+    		</td>
+    		<td>
+    			<table>
+    				<tr>
+                		<td colspan="2" align="left">
+                			<p class="headernote">Путь устройства на карте </p>
+                		</td>
+            		</tr>
+    				<tr>
+                		<td>
+    						<table>
+    							<form method="POST" action="/map/">
+    								{{ map_form }}
+    							</form>
+    						</table>
+    					</td>
+    					<td>
+    						<p id="wait">&nbsp;</p>
+    						</td>
+	    			</tr>
+            		<tr>
+                		<td colspan="2" align="left">
+                			<p class="headernote">Установка границы передвижения</p>
+                		</td>
+            		</tr>
+            		
+            		<tr>
+                		<td colspan="2" align="left">
+                		<b>Граница передвижения</b>
+                		<p>
+                		Для создания ограничения по вередвижению активируйте режим рисования и просто кликните на карте в местах
+                		установки углов зоны. Когда вы закончите, сохраните зону нажатием кнопки "Сохранить границу".                		
+                		<p>
+                			<input type="checkbox" id="DrawingON">Вкл/Выкл режим рисования</input>
+                			
+                			<div class="buttonB" onclick="undoPoint()">Отменить посл. точку</div>
+							<div class="buttonB" onclick="clearAll()">Убрать все точки</div>
+							<!-- 
+							<div class="buttonB" onclick="addClosing()">Closing point</div>
+							 -->
+							<div class="buttonB" onclick="SavePoints()">Сохранить границу</div>
+							<div class="buttonB" onclick="DeletePoints()">Удалить границу</div>
+                		</td>
+            		</tr>
+    			</table>
+    			
+    		</td>
+    	</tr>
+    </table>
+            
+{% endblock %}

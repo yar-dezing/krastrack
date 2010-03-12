@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+	
+{% block extrahead %}
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAafdStmOydL9y1mAQik9LfxTpH3CbXHjuCVmaTc5MkkU4wO1RRhT_SiuX2-ewLx4B2VuycBEvThLmfQ" 
+    		type="text/javascript">
+    </script>
+	
+	<script type="text/javascript">
+
+		var iconBlue = new GIcon(); 
+    	iconBlue.image = 'http://labs.google.com/ridefinder/images/mm_20_blue.png';
+    	iconBlue.shadow = 'http://labs.google.com/ridefinder/images/mm_20_shadow.png';
+    	iconBlue.iconSize = new GSize(12, 20);
+    	iconBlue.shadowSize = new GSize(22, 20);
+    	iconBlue.iconAnchor = new GPoint(6, 20);
+    	iconBlue.infoWindowAnchor = new GPoint(5, 1);
+		
+		var iconGreen = new GIcon(); 
+    	iconGreen.image = 'http://labs.google.com/ridefinder/images/mm_20_green.png';
+    	iconGreen.shadow = 'http://labs.google.com/ridefinder/images/mm_20_shadow.png';
+    	iconGreen.iconSize = new GSize(12, 20);
+    	iconGreen.shadowSize = new GSize(22, 20);
+    	iconGreen.iconAnchor = new GPoint(6, 20);
+    	iconGreen.infoWindowAnchor = new GPoint(5, 1);
+		
+    	var iconRed = new GIcon(); 
+    	iconRed.image = 'http://labs.google.com/ridefinder/images/mm_20_red.png';
+    	iconRed.shadow = 'http://labs.google.com/ridefinder/images/mm_20_shadow.png';
+    	iconRed.iconSize = new GSize(12, 20);
+    	iconRed.shadowSize = new GSize(22, 20);
+    	iconRed.iconAnchor = new GPoint(6, 20);
+    	iconRed.infoWindowAnchor = new GPoint(5, 1);
+
+    	var eastIcon = new GIcon();
+		eastIcon.image = "http://127.0.0.1:8000/appmedia/map_icons/east.png";
+		eastIcon.iconSize = new GSize(20, 20);
+		eastIcon.iconAnchor = new GPoint(10, 20);
+		eastIcon.infoWindowAnchor = new GPoint(5, 1);
+		eastmarkerOptions = { icon:eastIcon };
+		
+		var westIcon = new GIcon();
+		westIcon.image = "http://127.0.0.1:8000/appmedia/map_icons/west.png";
+		westIcon.iconSize = new GSize(20, 20);
+		westIcon.iconAnchor = new GPoint(10, 20);
+		westIcon.infoWindowAnchor = new GPoint(5, 1);
+		westmarkerOptions = { icon:westIcon };
+		
+		northIcon = new GIcon();
+		northIcon.image = "http://127.0.0.1:8000/appmedia/map_icons/north.png";
+		northIcon.iconSize = new GSize(20, 20);
+		northIcon.iconAnchor = new GPoint(10, 20);
+		northIcon.infoWindowAnchor = new GPoint(5, 1);
+		northmarkerOptions = { icon:northIcon };
+		
+		var southIcon = new GIcon();
+		southIcon.image = "http://127.0.0.1:8000/appmedia/map_icons/south.png";
+		southIcon.iconSize = new GSize(20, 20);
+		southIcon.iconAnchor = new GPoint(10, 20);
+		southIcon.infoWindowAnchor = new GPoint(5, 1);
+		southmarkerOptions = { icon:southIcon };
+
+		var customIcons = [];
+    	customIcons["blue"] = iconBlue;
+    	customIcons["green"] = iconGreen;
+    	customIcons["red"] = iconRed;
+
+    function load() {
+      if (GBrowserIsCompatible()) {
+
+        var map = new GMap2(document.getElementById("map"));
+        
+		map.addControl(new GSmallMapControl());
+		{% if first_point %}
+			map.setCenter({{ first_point }}, 11);
+		{% endif %}
+
+		{% if google_points %}
+			{% for point in google_points %}
+				var marker = createMarker({{ point.html }}, {{ point.info }}, {{ point.icon }});
+				map.addOverlay(marker);
+			{% endfor %}
+		{% endif %}
+		
+		{% if polyline_points %}
+			{{ polyline_points }}
+			map.addOverlay(polyline);
+		{% endif %}
+	
+      }
+    }
+	
+	function createMarker(point, info, type) {
+      var marker = new GMarker(point, customIcons[type]);
+      var html = info;
+      GEvent.addListener(marker, 'click', function() {
+        marker.openInfoWindowHtml(html);
+      });
+      return marker;
+    }
+    
+    </script>
+  </head>
+{% endblock %}
+
+{% block body %}
+<body onload="load()" onunload="GUnload()">
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Map</p>
+    
+    <table>
+    	<tr>
+    		<td width="500">
+    			<div id="map" style="width: 600px; height: 450px">
+    			
+    			</div>
+    			<p>
+    			
+    		</td>
+    		<td>
+    			<form method="POST" action="/map/">
+    			<table>
+    				{{ map_form }}
+    				<tr>
+                		<td colspan="2" align="right">
+                    		<input class="submit" type="submit" value="Update map" />
+                		</td>
+            		<tr>
+    			</table>
+    			</form>
+    		</td>
+    	</tr>
+    </table>
+            
+{% endblock %}

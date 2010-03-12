@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Устройства
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Устройства</p>
+
+    <table>
+        <tr>
+            <th>
+               Устройство ID
+            </th>
+            <th>
+               IMEI
+            </th>
+            <th>
+                Описание
+            </th>
+            <th>
+                Тип оборудования
+            </th>
+            <th>
+                Активирован
+            </th>
+            <th>
+                Удалить
+            </th>
+        </tr>
+        
+    {% for device in devices %}
+        <tr>
+            <td>
+            	{% ifequal device.is_active 1 %}
+                <a href="/devices/{{ device.id }}/"> 
+                    {{ device.id }}
+                </a>
+                {% else %}
+                	{{ device.id }}
+                {% endifequal %}
+            </td>
+            <td>
+            	{{ device.unique_id }}
+            </td>
+            <td>
+                {{ device.description }}
+            </td>
+            <td>
+                {{ device.equipment_type }}
+            </td>
+            <td>
+                {{ device.is_active_str }}
+            </td>
+            <td class="numeric">
+            	{% ifequal device.is_active 1 %}
+                <a href="/devices/{{ device.id }}/delete/"> 
+                    [X]
+                </a>
+                {% endifequal %}
+            </td>
+        </tr>
+    {% endfor %}
+    <table>
+    
+    <p>
+    
+    <a class="headernote" href="/devices/add/">Добавить новое устройство</a>
+{% endblock %}

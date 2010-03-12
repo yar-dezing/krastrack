@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Аккаунт - 
+    {% if account %} 
+        {{account.description}}
+    {% else %}
+        Новый
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Информация об аккаунте</p>
+
+    {% if error_message %}
+        <p class="errornote">{{ error_message }}</p>
+        Please, correct this errors and try again.
+        <p>
+    {% endif %}
+    
+    {% if account %}
+        <form method="POST" action="/gts_accounts/{{ account.id }}/">
+    {% else %}
+        <form method="POST" action="/gts_accounts/add/">
+    {% endif %}
+        <table>
+            {{ account_form }}
+            <tr>
+                <td colspan="2">
+                    <input class="submit" type="submit" value="Сохранить" />
+                </td>
+            <tr>
+        </table>
+    </form>
+{% endblock %}

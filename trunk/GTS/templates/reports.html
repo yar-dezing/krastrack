@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% load table_row_highlight %}
+
+{% block title %}
+    Отчеты
+{% endblock %}
+
+{% block extrahead %}
+    <script type='text/javascript' src='/appmedia/jquery.js'></script>
+
+<!--    
+	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA87DEJQM9RENpLrRvYqoccBTmMPmcopN6d7ZOl5ZZfF0Lkb591BRcdlo-Xd6yXTyMCCRek6dOtxm-MQ" 
+			type="text/javascript">
+	</script>
+-->
+	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAafdStmOydL9y1mAQik9LfxTpH3CbXHjuCVmaTc5MkkU4wO1RRhT_SiuX2-ewLx4B2VuycBEvThLmfQ" 
+			type="text/javascript">
+	</script>
+    
+    <script type='text/javascript'>
+	    var baseIcon = new GIcon();
+		baseIcon.iconSize=new GSize(12,20);
+		baseIcon.iconAnchor=new GPoint(6,20);
+		baseIcon.infoWindowAnchor=new GPoint(5,1);
+		var blueIcon = (new GIcon(baseIcon, "http://labs.google.com/ridefinder/images/mm_20_blue.png", null, ""));
+    
+    	var map = null;
+    	
+        var previous_interval_begin = '';
+        var previous_interval_end = '';
+        var previous_device = '';
+        var current_device = '';
+        var previous_report_kind = '';
+        var in_ajax = 0;
+        
+        function EventsHistory() {
+            var interval_begin = $("#id_interval_begin").val();
+            var interval_end = $("#id_interval_end").val();
+            //var device = $("#id_device").val();
+            var device = current_device;
+            
+            var report_kind = $("#id_report_kind").val();
+            var speed_limit = $("#id_speed_limit").val();
+            
+           	if ((interval_begin.length < 8) || (interval_end.length < 8)) {
+				return; 
+			}
+			
+			if ((interval_begin.charAt(interval_begin.length-1) == "-") || (interval_end.charAt(interval_end.length-1) == "-")) {
+				return;
+			}
+            
+            if (((interval_begin != '')  && (interval_end != '') && (device != '') && (report_kind != '') && (in_ajax != 1)) && ((previous_interval_begin != interval_begin) || (previous_interval_end != interval_end) || (previous_device != device) || (previous_report_kind != report_kind) || (previous_speed_limit != speed_limit))) 
+            {
+                in_ajax = 1;
+                $("#id_report").html("<img src='/appmedia/busy.gif' />");
+                $.post('/reports_ajax/', {"interval_begin": interval_begin, "interval_end": interval_end, "device": device, "report_kind": report_kind, "speed_limit": speed_limit}, function(data){ $("#id_report").html(data); in_ajax = 0;});
+        	}
+            
+        previous_interval_begin = interval_begin;
+        previous_interval_end = interval_end;
+        previous_device = device;
+        previous_report_kind = report_kind;
+        previous_speed_limit = speed_limit;
+    }
+    $(function() {
+        setInterval("EventsHistory()", 4000);
+        
+        $("#id_device").bind("change",  function(e){
+        	current_device = $("#id_device").val(); 
+        	});
+    });
+    
+	//-----------------------------------------------------------------------------
+	//Initialize Google map and load markers from "google_points"    
+	function LoadMap() {
+    if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"), {draggableCursor:"default"});
+        
+        map.addControl(new GMapTypeControl());
+        map.addControl(new GSmallMapControl());
+		
+		map.setCenter(new GLatLng(0.0, 0.0), 1);
+		
+		map.enableContinuousZoom();
+		}
+	}    
+    
+    //-----------------------------------------------------------------------------
+	//
+    function ShowPoint(lat, lng) {
+    	map.clearOverlays();
+    	map.setCenter(new GLatLng(lat, lng), 13);
+    	var marker = new GMarker(new GLatLng(lat, lng), blueIcon);
+    	map.addOverlay(marker);
+	}
+
+    </script>
+{% endblock %}
+
+{% block body %}
+<body onload="LoadMap()" onunload="GUnload()">
+{% endblock %}
+
+{% block content %}
+    <p class="headernote">Отчеты</p>
+    
+        <table>
+        	<tr>
+            	<td>
+            		<table>
+            			{{ reports_form }}
+            		</table>
+            	</td>
+
+            	<td width="400">
+		            <div id="map" style="width: 400px; height: 250px;">
+		    			&nbsp;
+		    		</div>
+    			</td>
+            </tr>
+        </table>
+    
+    <div name="id_report" id="id_report">
+        
+    </div>
+{% endblock %}

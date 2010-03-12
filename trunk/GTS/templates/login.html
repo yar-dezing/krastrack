@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Пожалуйста введите учетную информацию
+{% endblock %}
+
+{% block header %}
+    <h1>Пожалуйста введите учетную информацию</h1>
+{% endblock %}
+
+{% block content %}
+    {% if error_message %}
+        <p class="errornote">{{ error_message }}</p>
+    {% endif %}
+    
+    <form action="/accounts/login/" method="post">
+    <table>
+        <tr>
+            <td>
+                Аккаунт:
+            </td>
+            <td> 
+                <input type="text" name="account" id="account"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Имя пользователя:
+            </td>
+            <td> 
+                <input type="text" name="username" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Пароль:
+            </td>
+            <td> 
+                <input type="password" name="password" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="right">
+            <label>&nbsp;</label><input type="submit" value="Login" />
+            </td>
+        </tr>
+    </table>
+    </form>
+    
+    <script type="text/javascript">
+        document.getElementById('account').focus()
+    </script>
+{% endblock %}
+
+{% block menu %}
+
+{% endblock %}

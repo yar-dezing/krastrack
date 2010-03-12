@@ -1,0 +1,39 @@
+    {% load table_row_highlight %}
+    <hr>
+        <table> 
+            <tr>
+                <th class="report">
+                    Дата/Время
+                </th>
+                <th class="report">
+                    Широта
+                </th>
+                <th class="report">
+                    Долгота
+                </th>
+                <th class="report">
+                    Скорость
+                </th>
+            </tr>
+    	{% if events %}
+            {% for event in events %}
+                <tr class="{% odd_even_row forloop.counter 'odd_row' 'even_row' %}">
+                    <td class="date">
+                    	<a href="javascript:ShowPoint({{event.latitude}}, {{event.longitude}})">
+                        {{ event.event_date }}
+                        </a>
+                    </td>
+                    <td class="numeric">
+                        {{ event.lat }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.lon }}
+                    </td>
+                    <td class="numeric">
+                        {{ event.speed_kph|floatformat:"2" }}
+                    </td>
+                </tr>
+            {% endfor %}
+    	{% endif %}
+    	<table>
+    

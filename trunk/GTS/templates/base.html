@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<html>
+
+<head>
+    <META HTTP-EQUIV="expires" CONTENT="0">
+    
+    <title>
+        {% block title %}
+            Krastrack система отслеживания
+        {% endblock %}
+    </title>
+    
+    <link rel="stylesheet" href="/appmedia/main.css" />
+    
+    <script type="text/javascript" src="/jsi18n/"></script>
+    <script type="text/javascript" src="/media/js/core.js"></script>
+    <script type="text/javascript" src="/media/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="/media/js/calendar.js"></script>
+    <script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+    
+    {% block extrahead %}
+    
+    {% endblock %}
+</head>
+
+{% block body %}
+<body>
+{% endblock %}
+
+<div id="Header">
+    {% block header %}
+	Krastrack | <a href="/accounts/logout/">Выйти</a>
+    {% endblock %}    
+</div>
+
+<div id="Menu">
+    {% block menu %}
+        <a href="/">Домой</a>
+        |
+        <a href="/map/">Карта</a>
+        |
+        <a href="/reports/">Отчеты</a>
+        |
+        <a href="/gts_accounts/">Аккаунт</a>
+        |
+        <a href="/users/">Пользователи</a>
+        |
+        <a href="/devices/">Устройства</a>
+    {% endblock %}
+</div>
+
+<div id="Content">
+    {% block content %}
+        <h1>Добро пожаловать</h1>
+    {% endblock %}
+</div>
+
+</body>
+</html>
